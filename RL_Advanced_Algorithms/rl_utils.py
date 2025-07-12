@@ -3,21 +3,23 @@ import numpy as np
 import torch
 import collections
 import random
-
+# 经验回放池，复用代码
 class ReplayBuffer:
+    """ 经验回放池 """
     def __init__(self, capacity):
-        self.buffer = collections.deque(maxlen=capacity) 
+        self.buffer = collections.deque(maxlen=capacity)  # 队列,先进先出
 
-    def add(self, state, action, reward, next_state, done): 
-        self.buffer.append((state, action, reward, next_state, done)) 
+    def add(self, state, action, reward, next_state, done):  # 将数据加入buffer
+        self.buffer.append((state, action, reward, next_state, done))
 
-    def sample(self, batch_size): 
+    def sample(self, batch_size):  # 从buffer中采样数据,数量为batch_size
         transitions = random.sample(self.buffer, batch_size)
         state, action, reward, next_state, done = zip(*transitions)
-        return np.array(state), action, reward, np.array(next_state), done 
+        return np.array(state), action, reward, np.array(next_state), done
 
-    def size(self): 
+    def size(self):  # 目前buffer中数据的数量
         return len(self.buffer)
+
 
 def moving_average(a, window_size):
     cumulative_sum = np.cumsum(np.insert(a, 0, 0)) 
@@ -27,6 +29,7 @@ def moving_average(a, window_size):
     end = (np.cumsum(a[:-window_size:-1])[::2] / r)[::-1]
     return np.concatenate((begin, middle, end))
 
+# 训练,复用代码(在线策略)
 def train_on_policy_agent(env, agent, num_episodes):
     return_list = []
     for i in range(10):
@@ -34,11 +37,11 @@ def train_on_policy_agent(env, agent, num_episodes):
             for i_episode in range(int(num_episodes/10)):
                 episode_return = 0
                 transition_dict = {'states': [], 'actions': [], 'next_states': [], 'rewards': [], 'dones': []}
-                state = env.reset()
+                state, info = env.reset()
                 done = False
                 while not done:
                     action = agent.take_action(state)
-                    next_state, reward, done, _ = env.step(action)
+                    next_state, reward, done, truncated, _ = env.step(action)  # Gymnasium返回值不一样
                     transition_dict['states'].append(state)
                     transition_dict['actions'].append(action)
                     transition_dict['next_states'].append(next_state)
@@ -53,17 +56,18 @@ def train_on_policy_agent(env, agent, num_episodes):
                 pbar.update(1)
     return return_list
 
+# 训练,复用代码(离线策略)
 def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size, batch_size):
     return_list = []
     for i in range(10):
         with tqdm(total=int(num_episodes/10), desc='Iteration %d' % i) as pbar:
             for i_episode in range(int(num_episodes/10)):
                 episode_return = 0
-                state = env.reset()
+                state, info = env.reset()
                 done = False
                 while not done:
                     action = agent.take_action(state)
-                    next_state, reward, done, _ = env.step(action)
+                    next_state, reward, done, truncated, _ = env.step(action)  # Gymnasium返回值不一样
                     replay_buffer.add(state, action, reward, next_state, done)
                     state = next_state
                     episode_return += reward
