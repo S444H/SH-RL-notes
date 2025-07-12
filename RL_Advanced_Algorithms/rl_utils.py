@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import collections
 import random
+
 # 经验回放池，复用代码
 class ReplayBuffer:
     """ 经验回放池 """
@@ -20,14 +21,6 @@ class ReplayBuffer:
     def size(self):  # 目前buffer中数据的数量
         return len(self.buffer)
 
-
-def moving_average(a, window_size):
-    cumulative_sum = np.cumsum(np.insert(a, 0, 0)) 
-    middle = (cumulative_sum[window_size:] - cumulative_sum[:-window_size]) / window_size
-    r = np.arange(1, window_size-1, 2)
-    begin = np.cumsum(a[:window_size-1])[::2] / r
-    end = (np.cumsum(a[:-window_size:-1])[::2] / r)[::-1]
-    return np.concatenate((begin, middle, end))
 
 # 训练,复用代码(在线策略)
 def train_on_policy_agent(env, agent, num_episodes):
@@ -56,6 +49,7 @@ def train_on_policy_agent(env, agent, num_episodes):
                 pbar.update(1)
     return return_list
 
+
 # 训练,复用代码(离线策略)
 def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size, batch_size):
     return_list = []
@@ -80,6 +74,15 @@ def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size
                     pbar.set_postfix({'episode': '%d' % (num_episodes/10 * i + i_episode+1), 'return': '%.3f' % np.mean(return_list[-10:])})
                 pbar.update(1)
     return return_list
+
+
+def moving_average(a, window_size):
+    cumulative_sum = np.cumsum(np.insert(a, 0, 0))  # 计算累积和，提高计算效率&
+    middle = (cumulative_sum[window_size:] - cumulative_sum[:-window_size]) / window_size  # 计算中间部分的滑动平均
+    # 对开始部分和结束部分的特殊处理，可以选择简单的平均，或者不做边界处理
+    begin = np.cumsum(a[:window_size]) / np.arange(1, window_size + 1)
+    end = (np.cumsum(a[-window_size:])[::-1] / np.arange(1, window_size + 1))[::-1]
+    return np.concatenate((begin, middle, end))  # 拼接最终结果
 
 
 def compute_advantage(gamma, lmbda, td_delta):
