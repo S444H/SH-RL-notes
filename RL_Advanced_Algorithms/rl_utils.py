@@ -22,7 +22,7 @@ class ReplayBuffer:
         return len(self.buffer)
 
 
-# 训练,复用代码(在线策略)
+# 训练+进度条,复用代码(在线策略)
 def train_on_policy_agent(env, agent, num_episodes):
     return_list = []
     for i in range(10):
@@ -50,7 +50,7 @@ def train_on_policy_agent(env, agent, num_episodes):
     return return_list
 
 
-# 训练,复用代码(离线策略)
+# 训练+进度条,复用代码(离线策略)
 def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size, batch_size):
     return_list = []
     for i in range(10):
@@ -65,6 +65,7 @@ def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size
                     replay_buffer.add(state, action, reward, next_state, done)
                     state = next_state
                     episode_return += reward
+                    # 满足最小容量则可随机抽取
                     if replay_buffer.size() > minimal_size:
                         b_s, b_a, b_r, b_ns, b_d = replay_buffer.sample(batch_size)
                         transition_dict = {'states': b_s, 'actions': b_a, 'next_states': b_ns, 'rewards': b_r, 'dones': b_d}
@@ -77,12 +78,9 @@ def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size
 
 
 def moving_average(a, window_size):
-    cumulative_sum = np.cumsum(np.insert(a, 0, 0))  # 计算累积和，提高计算效率&
+    cumulative_sum = np.cumsum(np.insert(a, 0, 0))  # 使用积累和(插入0使得累积和从0开始)，提高计算效率&
     middle = (cumulative_sum[window_size:] - cumulative_sum[:-window_size]) / window_size  # 计算中间部分的滑动平均
-    # 对开始部分和结束部分的特殊处理，可以选择简单的平均，或者不做边界处理
-    begin = np.cumsum(a[:window_size]) / np.arange(1, window_size + 1)
-    end = (np.cumsum(a[-window_size:])[::-1] / np.arange(1, window_size + 1))[::-1]
-    return np.concatenate((begin, middle, end))  # 拼接最终结果
+    return middle  # 仅保留中间部分
 
 
 def compute_advantage(gamma, lmbda, td_delta):
