@@ -6,3 +6,5 @@
 conda activate HRL2
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
+state = torch.tensor(np.array([state]), dtype=torch.float).to(self.device)
+
