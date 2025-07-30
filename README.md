@@ -1,2 +1,3 @@
-# SH_RL_learning
-我的强化学习笔记：参考https://hrl.boyuai.com/
+# 我的强化学习笔记
+主要参考：
+- https://hrl.boyuai.com/
