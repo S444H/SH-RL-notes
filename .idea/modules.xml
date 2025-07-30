@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/SH_RL_learning.iml" filepath="$PROJECT_DIR$/.idea/SH_RL_learning.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SH-RL-notes.iml" filepath="$PROJECT_DIR$/.idea/SH-RL-notes.iml" />
     </modules>
   </component>
 </project>
