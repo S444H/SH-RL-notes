@@ -3,6 +3,7 @@
 ![示意图](Illustrations/)
 
 conda activate HRL2
+conda activate mpe
 
 # Gpu
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
