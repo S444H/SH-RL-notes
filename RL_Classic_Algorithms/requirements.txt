@@ -1,0 +1,6 @@
+gymnasium==1.1.1
+numpy==2.3.3
+pandas==2.3.2
+plotly==6.2.0
+torch==2.7.1+cu118
+tqdm==4.67.1
