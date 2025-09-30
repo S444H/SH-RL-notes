@@ -8,7 +8,6 @@ conda activate mpe
 pip install pipreqs
 pipreqs . --force --scan-notebooks
 
-
 # Gpu
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
