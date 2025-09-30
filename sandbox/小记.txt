@@ -5,6 +5,7 @@
 conda activate HRL2
 conda activate ma-gym
 conda activate mpe
+pip install pipreqs
 pipreqs . --force --scan-notebooks
 
 
